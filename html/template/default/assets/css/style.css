@@ -7812,6 +7812,16 @@ Styleguide 22.1
         width: calc(100% / 3); }
         .ec-categoryRole .ec-categoryRole__listItem:not(:last-of-type) {
           margin-right: 30px; }
+    .ec-layoutRole__left .ec-categoryRole {
+      margin-bottom: 36px; }
+      .ec-layoutRole__left .ec-categoryRole__list {
+        display: block;
+        list-style: none;
+        padding: 0; }
+      .ec-layoutRole__left .ec-categoryRole__list a {
+        border-bottom: 2px solid #eee;
+        display: block;
+        padding: 10px 0; }
     .ec-newsRole {
       padding: 60px 0 0; }
       .ec-newsRole .ec-newsRole__news {
@@ -7891,6 +7901,26 @@ Styleguide 22.1
         padding: 0 16px; }
       .ec-shelfGrid .ec-shelfGrid__item:nth-child(even) {
         padding: 0 16px; }
+    .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid {
+      display: block; }
+      .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item {
+        display: block;
+        width: 100%;
+        padding: 0; }
+      .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item a {
+        display: flex; }
+      .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item img {
+        border-radius: 6px; display: inline-block; height: fit-content; width: 38%; }
+      .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item_description {
+        box-sizing: border-box;
+        width: 62%;
+        padding-left: 8px; }
+      .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item_description p {
+        border-bottom: 2px solid #eee;
+        margin-bottom: 6px;
+        line-height: 1.8; }
+      .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item_description dl {
+        font-size: 0.8em; }
     .ec-shelfGridCenter {
       margin-left: -16px;
       margin-right: -16px; }
