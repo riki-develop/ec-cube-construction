@@ -5675,7 +5675,7 @@ Styleguide 13.2.1
 .ec-shelfGrid a:hover {
     text-decoration: none; }
 .ec-shelfGrid .ec-shelfGrid__item {
-    margin-bottom: 36px;
+    margin-bottom: 30px;
     width: 50%;
     display: flex;
     flex-direction: column; }
@@ -7917,8 +7917,9 @@ Styleguide 22.1
         padding-left: 8px; }
       .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item_description p {
         border-bottom: 2px solid #eee;
+        font-size: 0.8em;
         margin-bottom: 6px;
-        line-height: 1.8; }
+        line-height: 1.5; }
       .ec-layoutRole__left .ec-shelfRole .ec-shelfGrid .ec-shelfGrid__item_description dl {
         font-size: 0.8em; }
     .ec-shelfGridCenter {
