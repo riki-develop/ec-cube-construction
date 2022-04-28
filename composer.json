@@ -214,7 +214,7 @@
             "url": "https://package-api-c2.ec-cube.net",
             "options": {
                 "http": {
-                    "header": ["X-ECCUBE-KEY: "]
+                    "header": ["X-ECCUBE-KEY: 8NUM6qeviG8mzm6U1ITYyY5pFm6J9oNQks2awYTh"]
                 }
             }
         }

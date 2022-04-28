@@ -1,3 +1,4 @@
 var/
 vendor/
 node_modules/
+app/Plugin/.composer/cache/repo/
