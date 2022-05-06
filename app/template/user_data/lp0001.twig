@@ -1,0 +1,61 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+
+{% extends 'default_frame.twig' %}
+{% set pageLists = repository('Eccube\\Entity\\Page').getPageList() %}
+
+{% block main %}
+<div class="ec-registerRole">
+    <div class="ec-pageHeader lp-header">
+        <h1><img src="/ec-cube/html/template/default/assets/img/lp/bnr/{{ Page.url }}.jpg" alt="{{ title|trans }}"></h1>
+    </div>
+    <div class="ec-off1Grid">
+        <div class="ec-off1Grid__cell">
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+            <p>hogehogehogehoge</p>
+        </div>
+    </div>
+</div>
+
+<div class="ec-topicRole">
+    <div class="ec-role">
+        <div class="ec-secHeading">
+            <span class="ec-secHeading__en">{{ 'TOPICS'|trans }}</span>
+            <span class="ec-secHeading__line"></span>
+            <span class="ec-secHeading__ja">{{ '特集'|trans }}</span>
+        </div>
+
+        <div class="ec-topicRole__list">
+        {% for pickPage in pageLists %}
+            {% if pickPage.file_name matches '{^lp[0-9]*}' %}
+                {% if Page.url != pickPage.file_name %}
+                <div class="ec-topicRole__listItem">
+                    <a href="{{ pickPage.url }}">
+                        <img src="/ec-cube/html/template/default/assets/img/lp/bnr/{{ pickPage.file_name }}.jpg">
+                    </a>
+                    <p class="ec-topicRole__listItemTitle">{{ pickPage.name|trans }}</p>
+                </div>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+{# {{ dump(pageLists) }} #}
+{% endblock %}
