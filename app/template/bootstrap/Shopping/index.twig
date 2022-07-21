@@ -1,0 +1,459 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% form_theme form 'Form/form_div_layout.twig' %}
+
+{% block javascript %}
+    <script>
+        $(function() {
+            var $redirectCallback = function() {
+                loadingOverlay();
+                $('#shopping_order_redirect_to').val($(this).attr('data-path'));
+                $('#shopping-form').attr('action', '{{ url("shopping_redirect_to") }}').submit();
+                setTimeout(function () {
+                    loadingOverlay("hide");
+                }, 2000);
+            };
+            $('[data-trigger]').each(function() {
+                $(this).on($(this).attr('data-trigger'), $redirectCallback);
+            });
+
+            {% if is_granted('ROLE_USER') == false %}
+            var edit = $('.js-customer-edit');
+            var hidden = $('.js-customer-in');
+            var form = $('.js-customer-form');
+
+            $('#customer').click(function() {
+                $(edit).each(function(index) {
+                    var name = $(this).text();
+                    var input = $('<input id="edit' + index + '" type="text" class="form-control form-control-sm" />').val(name);
+                    $(form[index]).empty().append(input);
+                });
+
+                $('.js-non-customer-display').hide();
+                $('.js-non-customer-edit').show();
+                $('.js-mod-button').show();
+            });
+
+            $('#customer-ok').click(function() {
+                $(form).each(function(index) {
+                    $(hidden[index]).val($(form[index]).children('input').val());
+                });
+
+                var postData = {};
+                $(hidden).each(function() {
+                    postData[$(this).attr('name')] = $(this).val();
+                });
+
+                loadingOverlay();
+
+                $.ajax({
+                    url: "{{ url('shopping_customer') }}",
+                    type: 'POST',
+                    data: postData,
+                    dataType: 'json'
+                }).done(function(data) {
+                    if (data.status == 'OK') {
+                        $(form).each(function(index) {
+                            $(edit[index]).empty().text($(form[index]).children('input').val());
+                            $(form[index]).empty();
+                        });
+
+                        // kana field
+                        $(edit[2]).empty().text(data.kana01);
+                        $(edit[3]).empty().text(data.kana02);
+                        $('#customer-kana01').val(data.kana01);
+                        $('#customer-kana02').val(data.kana02);
+                    }
+                }).fail(function() {
+                    alert('更新に失敗しました。入力内容を確認してください。');
+                }).always(function(data) {
+                    // overlayを無効
+                    loadingOverlay('hide');
+                });
+
+                $('.js-non-customer-display').show();
+                $('.js-non-customer-edit').hide();
+                $('.js-mod-button').hide();
+            });
+
+            $('#customer-cancel').click(function() {
+                $('.js-non-customer-display').show();
+                $('.js-non-customer-edit').hide();
+                $('.js-mod-button').hide();
+            });
+            {% endif %}
+        });
+    </script>
+{% endblock javascript %}
+
+{% block main %}
+
+  <div class="row">
+    <div class="col">
+      <h1 class="h4 py-2 my-2 border-bottom">{{ 'ご注文手続き'|trans }}</h1>
+    </div>
+  </div>
+
+  <div class="row text-center justify-content-center text-secondary d-none d-sm-flex">
+    <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-check-square me-1"></i>{{ 'カートの商品'|trans }}
+    </div>
+    {% if is_granted('ROLE_USER') == false %}
+    <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-check-square me-1"></i>{{ 'お客様情報'|trans }}
+    </div>
+    {% endif %}
+    <div class="col-auto bg-light shadow-sm px-4 py-2 rounded-pill mx-2 fw-bold">
+      <i class="bi bi-check-square me-1"></i>{{ 'ご注文手続き'|trans }}
+    </div>
+    <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-square me-1"></i>{{ 'ご注文内容確認'|trans }}
+    </div>
+    <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-square me-1"></i>{{ '完了'|trans }}
+    </div>
+  </div>
+
+  {{ include('Shopping/alert.twig') }}
+
+  <form id="shopping-form" method="post" action="{{ url('shopping_confirm') }}">
+    {{ form_widget(form._token) }}
+    {{ form_widget(form.redirect_to) }}
+
+    <div class="row mt-4">
+      <div class="col-12 col-sm-8">
+
+        <div class="border-bottom mb-3">
+        <div class="row pb-3">
+          <div class="col-12 col-sm-auto">
+            {{ 'お客様情報'|trans }}
+          </div>
+
+          <div class="col position-relative js-non-customer-display">
+            <p>
+              <span class="js-customer-edit customer-name01 h5">{{ Order.name01 }}</span> <span class="js-customer-edit customer-name02 h5">{{ Order.name02 }}</span>
+              （ <span class="js-customer-edit customer-kana01">{{ Order.kana01 }}</span> <span class="js-customer-edit customer-kana02">{{ Order.kana02 }}</span> ）
+              {{ ' 様'|trans }}
+            <br>
+              〒<span class="js-customer-edit customer-postal_code">{{ Order.postal_code }}</span>　<br class="d-sm-none">
+              <span class="js-customer-edit customer-pref">{{ Order.pref }}</span>　<span class="js-customer-edit customer-addr01">{{ Order.addr01 }}</span>　<span class="js-customer-edit customer-addr02">{{ Order.addr02 }}</span>
+            <br>
+            <i class="bi bi-phone"></i> <span class="js-customer-edit customer-phone_number">{{ Order.phone_number }}</span>
+            <span class="d-none d-sm-inline"> ／</span><br class="d-sm-none">
+            <i class="bi bi-envelope"></i> <span class="js-customer-edit customer-email">{{ Order.email }}</span>
+            <span class="d-none d-sm-inline"> ／</span><br class="d-sm-none">
+            <i class="bi bi-building"></i> <span class="js-customer-edit customer-company_name">{{ Order.companyName }}</span>
+          </p>
+
+          {% if is_granted('ROLE_USER') == false %}
+          <div class="position-absolute bottom-0 end-0 me-3">
+            <button id="customer" class="btn btn-outline-secondary" type="button">{{ '変更'|trans }}</button>
+          </div>
+          {% endif %}
+        </div>
+
+
+        {% if is_granted('ROLE_USER') == false %}
+          <div class="col js-non-customer-edit" style="display:none;">
+
+            <div class="mb-2">
+              <div class="input-group">
+                <span class="js-customer-form customer-name01"></span>
+                <span class="js-customer-form customer-name02"></span>
+
+                <span class="js-customer-form customer-kana01 ms-sm-2"></span>
+                <span class="js-customer-form customer-kana02"></span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="input-group input-group-sm mb-2">
+                <span class="input-group-text" id="inputZipcode">〒</span>
+                <span class="js-customer-form customer-postal_code col-4 col-sm-auto"></span>
+                <span class="js-customer-form customer-address_pref"></span>
+              </div>
+              <div class="input-group input-group-sm mb-2">
+                <span class="js-customer-form customer-address_addr01"></span>
+                <span class="js-customer-form customer-address_addr02"></span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                <span class="js-customer-form customer-phone_number"></span>
+                <div class="w-100 d-block d-sm-none"></div>
+
+                <span class="input-group-text ms-sm-2"><i class="bi bi-envelope"></i></span>
+                <span class="js-customer-form customer-email"></span>
+                <div class="w-100 d-block d-sm-none"></div>
+
+                <span class="input-group-text ms-sm-2"><i class="bi bi-building"></i></span>
+                <span class="js-customer-form customer-company_name"></span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="js-mod-button" style="display:none;">
+            <div class="col-12 text-end">
+              <span id="customer-cancel"><button type="button" class="btn btn-outline-secondary">{{ 'キャンセル'|trans }}</button></span>
+              <span id="customer-ok"><button type="button" class="btn btn-primary">{{ '変更する'|trans }}</button></span>
+            </div>
+          </div>
+
+          <input type="hidden" id="customer-name01" class="js-customer-in" name="customer_name01" value="{{ Order.name01 }}">
+          <input type="hidden" id="customer-name02" class="js-customer-in" name="customer_name02" value="{{ Order.name02 }}">
+          <input type="hidden" id="customer-kana01" class="js-customer-in" name="customer_kana01" value="{{ Order.kana01 }}">
+          <input type="hidden" id="customer-kana02" class="js-customer-in" name="customer_kana02" value="{{ Order.kana02 }}">
+          <input type="hidden" id="customer-postal_code" class="js-customer-in" name="customer_postal_code" value="{{ Order.postal_code }}">
+          <input type="hidden" id="customer-pref" class="js-customer-in" name="customer_pref" value="{{ Order.pref }}">
+          <input type="hidden" id="customer-addr01" class="js-customer-in" name="customer_addr01" value="{{ Order.addr01 }}">
+          <input type="hidden" id="customer-addr02" class="js-customer-in" name="customer_addr02" value="{{ Order.addr02 }}">
+          <input type="hidden" id="customer-phone_number" class="js-customer-in" name="customer_phone_number" value="{{ Order.phone_number }}">
+          <input type="hidden" id="customer-email" class="js-customer-in" name="customer_email" value="{{ Order.email }}">
+          <input type="hidden" id="customer-company-name" class="js-customer-in" name="customer_company_name" value="{{ Order.companyName }}">
+
+        {% endif %}
+      </div>
+      </div>
+      {# row #}
+
+      <div class="border-bottom mb-3">
+      <div class="row pb-3">
+        <div class="col-12 col-sm-auto">
+          {{ 'お支払方法'|trans }}
+        </div>
+        <div class="col">
+          {% for key, child in form.Payment %}
+            <div class="form-check form-check-inline">
+              {% set Payment = form.Payment.vars.choices[key].data %}
+              {{ form_widget(child, { 'attr': { 'data-trigger': 'change', 'class': 'form-check-input' }}) }}
+              {% if Payment.payment_image is not null %}
+                <p><img src="{{ asset(Payment.payment_image, 'save_image') }}"></p>
+              {% endif %}
+            </div>
+          {% endfor %}
+          <div class="{{ has_errors(form.Payment) ? ' error' }}">{{ form_errors(form.Payment) }}</div>
+
+        </div>
+      </div>
+      </div>
+      {# row #}
+
+      {% if BaseInfo.isOptionPoint and Order.Customer is not null %}
+      <div class="border-bottom mb-3">
+      <div class="row pb-3">
+        <div class="col-12 col-sm-auto">
+          {{ '利用ポイント'|trans }}
+        </div>
+        <div class="col">
+          <div class="row {{ has_errors(form.use_point) ? ' error' }}">
+            <div class="col-auto">{{ '利用可能ポイント：%point% pt '|trans({ '%point%': Order.Customer.Point|number_format }) }}</div>
+            <div class="col-auto">
+            {{ form_widget(form.use_point, { 'attr': { 'type': 'text', 'class': 'form-control', 'data-trigger': 'change' }}) }}
+            {{ form_errors(form.use_point) }}
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+      {# row #}
+      {% endif %}
+
+
+      <div class="border-bottom mb-3">
+        <div class="row pb-3">
+          <div class="col-12 col-sm-auto">
+            {{ '配送情報　'|trans }}
+          </div>
+          <div class="col">
+          {% for shipping in Order.shippings %}
+            {% set idx = loop.index0 %}
+            {% set isShowReducedTaxMess = false %}
+            <div class="card position-relative p-3 mb-3">
+
+              <div class="mb-2 small">{{ 'お届け先'|trans }}{% if Order.multiple %}({{ loop.index }}){% endif %}</div>
+
+              <div class="position-absolute top-0 end-0 p-2">
+                {% if is_granted('ROLE_USER') %}
+                  <button class="btn btn-outline-secondary btn-sm" data-id="{{ shipping.id }}" data-trigger="click" data-path="{{ path('shopping_shipping', {'id': shipping.id}) }}">{{ '変更'|trans }}</button>
+                {% else %}
+                  <button class="btn btn-outline-secondary btn-sm" data-id="{{ shipping.id }}" data-trigger="click" data-path="{{ path('shopping_shipping_edit', {'id': shipping.id}) }}">{{ '変更'|trans }}</button>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <span class="h5">{{ shipping.name01 }} {{ shipping.name02 }}</span>
+                 ( <span>{{ shipping.kana01 }} {{ shipping.kana02 }} </span>)
+                 {{ ' 様'|trans }}
+                <br>
+              {{ '〒'|trans }}{{ shipping.postal_code }} {{ shipping.pref }}{{ shipping.addr01 }}{{ shipping.addr02 }}
+                <br>
+              <i class="bi bi-phone"></i> {{ shipping.phone_number }}
+              </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <label class="small">{{ '配送方法'|trans }}</label>
+                {{ form_widget(form.Shippings[idx].Delivery, { 'attr': { 'class': 'form-control', 'data-trigger': 'change' }}) }}
+                {{ form_errors(form.Shippings[idx].Delivery) }}
+              </div>
+              <div class="col border-start">
+                <label class="small">{{ 'お届け日'|trans }}</label>
+                {{ form_widget(form.Shippings[idx].shipping_delivery_date, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.Shippings[idx].shipping_delivery_date) }}
+              </div>
+              <div class="col border-start">
+                <label class="small">{{ 'お届け時間'|trans }}</label>
+                {{ form_widget(form.Shippings[idx].DeliveryTime, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.Shippings[idx].DeliveryTime) }}
+              </div>
+            </div>
+
+            <div class="row">
+              {% for orderItem in shipping.productOrderItems %}
+              <div class="col-12 col-sm-6 mb-2">
+                <div class="d-flex border rounded-3">
+                  <div class="col-4">
+                    <img src="{{ asset((orderItem.product is null ? null : orderItem.product.MainListImage)|no_image_product, 'save_image') }}" alt="{{ orderItem.productName }}" class="card-img-top rounded-3">
+                  </div>
+                  <div class="col-8 p-2">
+                    <div>{{ orderItem.productName }}{% if is_reduced_tax_rate(orderItem) %}{{ '※'|trans }}{% set isShowReducedTaxMess = true %}{% endif %}</div>
+                    <div class="small lh-1 my-2">{% if orderItem.productClass is not null and orderItem.productClass.classCategory1 %}
+                      {{ orderItem.productClass.classCategory1.className.name }}：{{ orderItem.productClass.classCategory1 }}<br>
+                    {% endif %}
+                    {% if orderItem.productClass is not null and orderItem.productClass.classCategory2 %}
+                      {{ orderItem.productClass.classCategory2.className.name }}：{{ orderItem.productClass.classCategory2 }}<br>
+                    {% endif %}</div>
+                    <div class="small lh-1">
+                      <span>{{ orderItem.priceIncTax|price }} × {{ orderItem.quantity|number_format }}</span>　
+                      <span class="fw-bold">{{ '小計：'|trans }}{{ orderItem.totalPrice|price }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+              <p class="m-0">{{ isShowReducedTaxMess ? '※ は軽減税率対象商品です。'|trans }}</p>
+            </div>
+
+
+            </div>
+            {# card #}
+          {% endfor %}
+            <div class="text-end">
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-trigger="click" data-path="{{ path('shopping_shipping_multiple') }}">{{ 'お届け先を追加する'|trans }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {# row #}
+
+      <div class="border-bottom mb-3">
+      <div class="row pb-3">
+        <div class="col-12 col-sm-auto">
+          {{ '問い合わせ'|trans }}
+        </div>
+        <div class="col">
+          {{ form_widget(form.message, {'attr': {'class': 'form-control', 'placeholder': 'お問い合わせ事項がございましたら、こちらにご入力ください。(3000文字まで)'|trans, 'rows': '6'}}) }}
+          {{ form_errors(form.message) }}
+        </div>
+      </div>
+      </div>
+      {# row #}
+
+
+      </div>
+      {# col-8 #}
+
+      <div class="col-12 col-sm-4">
+        <div class="card sticky-top">
+          <div class="card-body lh-sm">
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '小計'|trans }}</div>
+              <div class="ec-totalBox__specTotal">{{ Order.subtotal|price }}</div>
+            </div>
+
+            {% if Order.charge < 0 %}
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '手数料'|trans }}</div>
+              <div>{{ Order.charge|price }}</div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '送料'|trans }}</div>
+              <div>{{ Order.deliveryFeeTotal|price }}</div>
+            </div>
+
+            {% if Order.taxable_discount < 0 %}
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '値引き'|trans }}</div>
+              <div>{{ Order.taxable_discount|price }}</div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '合計'|trans }}</div>
+              <div class="text-end">
+                {#
+                <span>{{ Order.taxable_total|price }}</span>
+                <small>{{ '税込'|trans }}</small>
+                #}
+                {% for rate, total in Order.taxable_total_by_tax_rate %}
+                <div>
+                  <small class="text-secondary">{{ '%rate%％対象'|trans({ '%rate%': rate }) }}：</small>{{ total|price }}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            {% for item in Order.tax_free_discount_items %}
+              {% if loop.first %}<div class="ec-totalBox__total"></div>{% endif %}
+              <div class="d-flex justify-content-between border-bottom p-2">
+                <div>{{ item.product_name }}</div>
+                <div>{{ item.total_price|price }}</div>
+              </div>
+            {% endfor %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ 'お支払い合計'|trans }}</div>
+              <div>
+                <span class="fw-bold fs-5">{{ Order.payment_total|price }}</span>
+                <small>{{ '税込'|trans }}</small>
+              </div>
+            </div>
+
+            {% if BaseInfo.isOptionPoint and Order.Customer is not null %}
+              <div class="p-2 text-end text-secondary small">
+                <div>{{ 'ご利用ポイント'|trans }}：{{ Order.UsePoint|number_format }} pt</div>
+                <div>{{ '加算ポイント'|trans }}：{{ Order.AddPoint|number_format }} pt</div>
+              </div>
+            {% endif %}
+
+            <div class="p-2 text-end">
+              <a href="{{ url("cart") }}" class="btn btn-sm btn-outline-secondary">{{ 'カートに戻る'|trans }}</a>
+              <button type="submit" class="btn btn-primary px-4">{{ '確認する'|trans }}</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </form>
+
+
+{% endblock %}

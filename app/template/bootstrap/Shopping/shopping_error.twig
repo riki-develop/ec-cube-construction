@@ -1,0 +1,31 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set body_class = 'cart_page' %}
+
+{% block main %}
+
+  <div class="row">
+    <div class="col">
+      <h1 class="h4 py-2 my-2 border-bottom">{{ '購入エラー'|trans }}</h1>
+
+      <!-- アラートメッセージ -->
+      {{ include('Shopping/alert.twig', { 'error_only': true }) }}
+
+      <div class="text-center">
+        <a class="btn btn-lg btn-primary" href="{{ url('cart') }}">{{ 'カートに戻る'|trans }}</a>
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}

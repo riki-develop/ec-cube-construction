@@ -1,0 +1,60 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% set Categories = repository('Eccube\\Entity\\Category').getList() %}
+
+{% macro childTree(Category) %}
+  {% from _self import childTree %}
+  <a href="{{ url('product_list') }}?category_id={{ Category.id }}" class="dropdown-item">{{ Category.name }}</a>
+  {% if Category.children|length > 0 %}
+    {% for ChildCategory in Category.children %}
+      {{ childTree(ChildCategory) }}
+    {% endfor %}
+  {% endif %}
+{% endmacro %}
+
+{% macro tree(Category) %}
+    {% from _self import childTree %}
+    {% if Category.children|length > 0 %}
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarCat{{ Category.id }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ Category.name }}
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="navbarCat{{ Category.id }}">
+        {% for ChildCategory in Category.children %}
+          <li>
+            {{ childTree(ChildCategory) }}
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+    {% else %}
+    <li class="nav-item">
+      <a href="{{ url('product_list') }}?category_id={{ Category.id }}" class="nav-link">
+        {{ Category.name }}
+      </a>
+    </li>
+    {% endif %}
+{% endmacro %}
+
+{# @see https://github.com/bolt/bolt/pull/2388 #}
+{% from _self import tree %}
+
+<div class="container">
+  <nav class="navbar navbar-expand-lg navbar-light d-none d-sm-flex">
+    <div class="collapse navbar-collapse justify-content-center" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        {% for Category in Categories %}
+            {{ tree(Category) }}
+        {% endfor %}
+      </ul>
+    </div>
+  </nav>
+</div>

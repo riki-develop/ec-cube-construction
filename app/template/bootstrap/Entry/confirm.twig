@@ -1,0 +1,160 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set body_class = 'registration_page' %}
+
+{% form_theme form 'Form/form_div_layout.twig' %}
+
+{% block main %}
+
+<div class="row max-width-660 mx-auto">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ '新規会員登録(確認)'|trans }}</h1>
+
+    <form method="post" action="{{ url('entry') }}">
+        {{ form_widget(form._token) }}
+        <p>{{ '下記の内容で登録してもよろしいでしょうか？
+  よろしければ、一番下の「会員登録をする」ボタンをクリックしてください。
+  '|trans|nl2br }}</p>
+
+
+  <div class="mb-3">
+    {{ form_label(form.name, 'お名前', { 'label_attr': { 'class': 'form-label' }}) }}
+    <div class="fs-5">
+      {{ form.name.name01.vars.data }} {# form.vars.value = form.vars.data = Customer #}
+      {{ form.name.name02.vars.data }}
+      {{ form_widget(form.name.name01, { type : 'hidden' }) }}
+      {{ form_widget(form.name.name02, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+    {{ form_label(form.kana, 'お名前(カナ)', { 'label_attr': { 'class': 'form-label' }}) }}
+    <div class="fs-5">
+      {{ form.kana.kana01.vars.data }}
+      {{ form.kana.kana02.vars.data }}
+      {{ form_widget(form.kana.kana01, { type : 'hidden' }) }}
+      {{ form_widget(form.kana.kana02, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+
+  <div class="mb-3">
+    {{ form_label(form.company_name, '会社名', { 'label_attr': { 'class': 'form-label'}}) }}
+    <div class="fs-5">
+    {{ form.company_name.vars.data }}
+    {{ form_widget(form.company_name, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+  {{ form_label(form.address, '住所', { 'label_attr': { 'class': 'form-label' }}) }}
+    <div class="fs-5">
+      {# 郵便番号 #}
+      <span>{{ '〒'|trans }}</span>{{ form.postal_code.vars.data }}<br>
+      {{ form_widget(form.postal_code, { type : 'hidden' }) }}
+      {# 都道府県・住所 #}
+      {{ form.address.pref.vars.data }} {{ form.address.addr01.vars.data }} {{ form.address.addr02.vars.data }}
+      {{ form_widget(form.address.pref, { type : 'hidden' }) }}
+      {{ form_widget(form.address.addr01, { type : 'hidden' }) }}
+      {{ form_widget(form.address.addr02, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+  {{ form_label(form.phone_number, '電話番号', { 'label_attr': { 'class': 'form-label' }}) }}
+    <div class="fs-5">
+    {{ form.phone_number.vars.data }}
+    {{ form_widget(form.phone_number, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+  {{ form_label(form.email, 'メールアドレス', {'label_attr': {'class': 'form-label'}}) }}
+    <div class="fs-5">
+    {{ form.email.vars.data }}
+    {{ form_widget(form.email.first, { type : 'hidden' }) }}
+    {{ form_widget(form.email.second, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+  {{ form_label(form.password, 'パスワード', { 'label_attr': { 'class': 'form-label' }}) }}
+    <div class="fs-5">
+    ********
+    {{ form_widget(form.password.first, { type : 'hidden' }) }}
+    {{ form_widget(form.password.second, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+
+  <div class="mb-3">
+  {{ form_label(form.birth, '生年月日', { 'label_attr': { 'class': 'form-label' }}) }}
+    <div class="fs-5">
+    {{ form.birth.vars.data ? form.birth.vars.data|date_day() }}
+    {{ form_widget(form.birth.year, { type : 'hidden' }) }}
+    {{ form_widget(form.birth.month, { type : 'hidden' }) }}
+    {{ form_widget(form.birth.day, { type : 'hidden' }) }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+  {{ form_label(form.sex, '性別', {'label_attr': {'class': 'form-label'}}) }}
+    <div class="fs-5">
+    {{ form.sex.vars.data }}
+    {{ form_widget(form.sex, { type: 'hidden'}) }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+  {{ form_label(form.job, '職業', {'label_attr': {'class': 'form-label'}}) }}
+    <div class="fs-5">
+    {{ form.job.vars.data }}
+    {{ form_widget(form.job, { type: 'hidden'}) }}
+    </div>
+  </div>
+
+  {{ form_widget(form.user_policy_check, { type: 'hidden'}) }}
+
+
+  {# エンティティ拡張の自動出力 #}
+  {% for f in form if f.vars.eccube_form_options.auto_render %}
+      {% if f.vars.eccube_form_options.form_theme %}
+          {% form_theme f f.vars.eccube_form_options.form_theme %}
+          {{ form_row(f) }}
+      {% else %}
+        <div class="mb-3">
+        {{ form_label(f) }}
+          <div class="fs-5">
+          <div class="{{ f.vars.eccube_form_options.style_class }}{{ has_errors(f) ? ' error' }}">
+              {{ f.vars.data }}
+              {{ form_widget(f, { type: 'hidden'}) }}
+          </div>
+          </div>
+        </div>
+      {% endif %}
+  {% endfor %}
+
+
+
+  <div class="mb-3 text-center">
+    <button class="btn btn-primary btn-lg mb-2" type="submit" name="mode" value="complete">{{ '会員登録をする'|trans }}</button>
+    <br>
+    <button class="btn btn-secondary" type="submit" name="mode" value="back">{{ '戻る'|trans }}</button>
+  </div>
+
+
+  </form>
+  </div>
+</div>
+
+{% endblock %}

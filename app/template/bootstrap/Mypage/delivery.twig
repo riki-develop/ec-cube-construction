@@ -1,0 +1,73 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set mypageno = 'delivery' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+<div class="row">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ 'マイページ'|trans }}/{{ 'お届け先一覧'|trans }}</h1>
+    {% include 'Mypage/navi.twig' %}
+  </div>
+</div>
+
+<div class="mb-2">
+  {% if Customer.CustomerAddresses|length < eccube_config.eccube_deliv_addr_max %}
+    <a class="btn btn-outline-primary" href="{{ url('mypage_delivery_new') }}">{{ '新規お届け先を追加する'|trans }}</a>
+  {% else %}
+    <p>{{ 'お届け先登録の上限の%count%件に達しています。お届け先を入力したい場合は、削除か変更を行ってください。'|trans({ '%count%': eccube_config.eccube_deliv_addr_max }) }}</p>
+  {% endif %}
+</div>
+
+{% if Customer.CustomerAddresses|length > 0 %}
+
+  <p>{{ '%count%件のお届け先があります'|trans({'%count%':Customer.CustomerAddresses|length}) }}</p>
+
+  <div class="row mb-5 row-cols-2 row-cols-md-4 g-2 g-sm-4">
+
+
+    {% for CustomerAddress in Customer.CustomerAddresses %}
+    <div class="col">
+      <div class="card">
+
+        <div class="card-body">
+          <h5 class="card-title">{{ CustomerAddress.name01 }}&nbsp;{{ CustomerAddress.name02 }}</h5>
+          <p class="card-text">
+            {{ '〒'|trans }}{{ CustomerAddress.postal_code }} {{ CustomerAddress.Pref }}{{ CustomerAddress.addr01 }}{{ CustomerAddress.addr02 }}<br>
+            {{ CustomerAddress.phone_number }}
+          </p>
+        </div>
+        <div class="card-footer text-end">
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url('mypage_delivery_delete', { id : CustomerAddress.id }) }}" {{ csrf_token_for_anchor() }} data-method="delete">
+            削除
+          </a>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url('mypage_delivery_edit', { id : CustomerAddress.id }) }}">{{ '変更'|trans }}</a>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+{% else %}
+
+  <div class="text-center py-3 fs-4">
+    <p>
+      {{ 'お届け先は登録されていません。'|trans }}
+    </p>
+  </div>
+{% endif %}
+
+{% endblock %}

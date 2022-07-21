@@ -1,0 +1,123 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% form_theme form 'Form/form_div_layout.twig' %}
+
+{% block javascript %}
+    <script src="//yubinbango.github.io/yubinbango/yubinbango.js" charset="UTF-8"></script>
+{% endblock javascript %}
+
+{% block main %}
+  <div class="row max-width-660 m-sm-auto">
+    <div class="col">
+      <h1 class="h4 py-2 my-2 border-bottom">{{ 'お届け先の追加'|trans }}</h1>
+      <form method="post" action="{{ url('shopping_shipping_multiple_edit') }}" class="h-adr">
+      {{ form_widget(form._token) }}
+
+      <div class="mb-3">
+        {{ form_label(form.name, 'お名前', { 'label_attr': { 'class': 'form-label' }}) }}
+
+        <div class="{{ has_errors(form.name.name01, form.name.name02) ? ' error'}}">
+          <div class="input-group">
+            {{ form_widget(form.name.name01, { 'attr': { 'placeholder': '姓', 'class': 'form-control' }}) }}
+            {{ form_widget(form.name.name02, { 'attr': { 'placeholder': '名', 'class': 'form-control' }}) }}
+          </div>
+          {{ form_errors(form.name.name01) }}
+          {{ form_errors(form.name.name02) }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form_label(form.kana, 'お名前(カナ)', { 'label_attr': { 'class': 'form-label' }}) }}
+
+        <div class="{{ has_errors(form.kana.kana01, form.kana.kana02) ? ' error'}}">
+          <div class="input-group">
+            {{ form_widget(form.kana.kana01, { 'attr': { 'placeholder': 'セイ', 'class': 'form-control' }}) }}
+            {{ form_widget(form.kana.kana02, { 'attr': { 'placeholder': 'メイ', 'class': 'form-control' }}) }}
+          </div>
+          {{ form_errors(form.kana.kana01) }}
+          {{ form_errors(form.kana.kana02) }}
+        </div>
+      </div>
+
+
+      <div class="mb-3">
+        {{ form_label(form.company_name, '会社名', { 'label_attr': { 'class': 'form-label' }}) }}
+        <div class="{{ has_errors(form.company_name) ? ' error' }}">
+          {{ form_widget(form.company_name, { 'attr': { 'class': 'form-control' }}) }}
+          {{ form_errors(form.company_name) }}
+        </div>
+      </div>
+
+
+      <div class="mb-3">
+      {{ form_label(form.address, '住所', { 'label_attr': { 'class': 'form-label' }}) }}
+        <div class="mb-2 {{ has_errors(form.postal_code) ? ' error' }}">
+          <div class="input-group">
+            <span class="input-group-text" id="inputZipcode">〒</span>
+            {{ form_widget(form.postal_code, { 'attr': { 'class': 'form-control' }}) }}
+            <span class="input-group-text"><a href="https://www.post.japanpost.jp/zipcode/" target="_blank" class="text-dark text-decoration-none">{{ '郵便番号検索'|trans }}</a></span>
+          </div>
+          {{ form_errors(form.postal_code) }}
+        </div>
+        <div class="mb-2 {{ has_errors(form.address.pref) ? ' error' }}">
+          {{ form_widget(form.address.pref, { 'attr': { 'class': 'form-select' }}) }}
+          {{ form_errors(form.address.pref) }}
+        </div>
+        <div class="mb-2 {{ has_errors(form.address.addr01) ? ' error' }}">
+            {{ form_widget(form.address.addr01, { 'attr': { 'placeholder': '市区町村名','class': 'form-control' }}) }}
+            {{ form_errors(form.address.addr01) }}
+        </div>
+        <div class="mb-2 {{ has_errors(form.address.addr02) ? ' error' }}">
+            {{ form_widget(form.address.addr02,  { 'attr': { 'placeholder': '番地・ビル名','class': 'form-control' }}) }}
+            {{ form_errors(form.address.addr02) }}
+        </div>
+      </div>
+
+
+      <div class="mb-3">
+        {{ form_label(form.phone_number, '電話番号', { 'label_attr': { 'class': 'form-label' }}) }}
+        <div class="{{ has_errors(form.phone_number) ? ' error' }}">
+            {{ form_widget(form.phone_number, { 'attr': { 'class': 'form-control' }}) }}
+            {{ form_errors(form.phone_number) }}
+        </div>
+      </div>
+
+
+      {# エンティティ拡張の自動出力 #}
+      {% for f in form if f.vars.eccube_form_options.auto_render %}
+        {% if f.vars.eccube_form_options.form_theme %}
+          {% form_theme f f.vars.eccube_form_options.form_theme %}
+          {{ form_row(f) }}
+        {% else %}
+          <div class="mb-3">
+            {{ form_label(f) }}
+            <div class="{{ f.vars.eccube_form_options.style_class }}{{ has_errors(f) ? ' error' }}">
+              {{ form_widget(f) }}
+              {{ form_errors(f) }}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+
+      <div class="mb-3 text-center">
+        <button type="submit" class="btn btn-primary btn-lg mb-2">{{ '登録する'|trans }}</button>
+        <br>
+        <a href="{{ url('shopping_shipping_multiple') }}" class="btn btn-secondary">{{ '戻る'|trans }}</a>
+      </div>
+
+    </div>
+  </div>
+
+
+{% endblock %}

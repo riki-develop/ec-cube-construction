@@ -1,0 +1,95 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set mypageno = 'index' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+<div class="row">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ 'マイページ'|trans }}/{{ 'ご注文履歴'|trans }}</h1>
+    {% include 'Mypage/navi.twig' %}
+    {% if pagination.totalItemCount > 0 %}
+      <p>{{ '%count%件の履歴があります'|trans({'%count%':pagination.totalItemCount}) }}</p>
+
+      <div class="border-top">
+      {% for Order in pagination %}
+        <div class="row border-bottom py-3 p-sm-3 lh-sm">
+
+          <div class="col-6 col-sm-2 mb-2 mb-sm-0">
+            <small>{{ '注文日時'|trans }}<br>
+            {{ Order.order_date|date_sec }}</small>
+          </div>
+
+          <div class="col-6 col-sm-2 col-xxl-1 mb-2 mb-sm-0">
+            <small>{{ 'ご注文番号'|trans }}</small><br>
+            {{ Order.order_no }}
+          </div>
+
+          {% if (BaseInfo.option_mypage_order_status_display) %}
+          <div class="col-6 col-sm-2 col-xxl-1 mb-2 mb-sm-0">
+            <small>{{ 'ご注文状況'|trans }}</small><br>
+            {{ Order.CustomerOrderStatus }}
+          </div>
+          {% endif %}
+
+          <div class="col-6 col-sm-2 col-xxl-1 mb-2 mb-sm-0">
+            <a href="{{ url('mypage_history', {'order_no': Order.order_no}) }}">{{ '詳細を見る'|trans }}</a>
+          </div>
+
+          <div class="col">
+            <div class="row">
+            {% for OrderItem in Order.MergedProductOrderItems %}
+              <div class="col-12 col-xxl-6 mb-2">
+                <div class="d-flex border rounded-3">
+                  <div class="col-4">
+                    {% if OrderItem.Product is null %}
+                      <img src="{{ asset(''|no_image_product, 'save_image') }}" class="card-img-top rounded-3"/>
+                    {% else %}
+                      <img src="{{ asset(OrderItem.Product.MainListImage|no_image_product, 'save_image') }}" class="card-img-top rounded-3">
+                    {% endif %}
+                  </div>
+                  <div class="col-8 p-2">
+                    <div>{{ OrderItem.product_name }}</div>
+                    <div class="small lh-sm">
+                      {% if OrderItem.class_category_name1 is not empty %}
+                        {{ OrderItem.class_category_name1 }}
+                      {% endif %}
+                      {% if OrderItem.class_category_name1 is not empty %}
+                        / {{ OrderItem.class_category_name2 }}
+                      {% endif %}<br>
+                      <span class="fw-bold">{{ OrderItem.price_inc_tax|price }} × {{ OrderItem.quantity }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      {% endfor %}
+      </div>
+
+      <div class="ec-pagerRole">
+        {% include "pager.twig" with {'pages': pagination.paginationData} %}
+      </div>
+
+    {% else %}
+      <p>{{ 'ご注文履歴はありません。'|trans }}</p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

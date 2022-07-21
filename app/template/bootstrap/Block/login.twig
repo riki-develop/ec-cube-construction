@@ -1,0 +1,48 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+
+{# <nav class="row d-none d-md-inline-block"> #}
+  {% if is_granted('ROLE_USER') %}
+  <div class="mx-2">
+    <a href="{{ url('mypage') }}"  class="text-light text-decoration-none">
+      <i class="bi bi-person-circle"></i>
+      <span class="d-none d-sm-inline">{{ 'マイページ'|trans }}</span>
+    </a>
+  </div>
+  <div class="mx-2">
+  <a href="{{ url('logout') }}" class="text-light text-decoration-none">
+    <i class="bi bi-door-closed"></i>
+    <span class="d-none d-sm-inline">{{ 'ログアウト'|trans }}</span>
+  </a>
+  </div>
+  {% else %}
+    <div class="mx-2">
+  <a href="{{ url('entry') }}" class="text-light text-decoration-none">
+    <i class="bi bi-person-plus"></i>
+    <span class="d-none d-sm-inline">{{ '新規会員登録'|trans }}</span>
+  </a>
+  </div>
+  <div class="mx-2">
+  <a href="{{ url('mypage_login') }}" class="text-light text-decoration-none">
+      <i class="bi bi-door-open"></i>
+      <span class="d-none d-sm-inline">{{ 'ログイン'|trans }}</span>
+  </a>
+  </div>
+  {% endif %}
+  {% if BaseInfo.option_favorite_product %}
+  <div class="mx-2">
+    <a href="{{ url('mypage_favorite') }}" class="text-light text-decoration-none">
+      <i class="bi bi-heart"></i>
+      <span class="d-none d-sm-inline">{{ 'お気に入り'|trans }}</span>
+    </a>
+  </div>
+  {% endif %}
+{# </nav> #}

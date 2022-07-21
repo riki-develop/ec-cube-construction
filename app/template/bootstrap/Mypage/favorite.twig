@@ -1,0 +1,72 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set mypageno = 'favorite' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+<div class="row">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ 'マイページ'|trans }}/{{ 'お気に入り一覧'|trans }}</h1>
+    {% include 'Mypage/navi.twig' %}
+    <p>{{ '%count%件のお気に入りがあります'|trans({'%count%':pagination.totalItemCount}) }}</p>
+  </div>
+</div>
+
+
+{% if pagination.totalItemCount > 0 %}
+
+  <div class="row mb-5 row-cols-2 row-cols-md-4 g-2 g-sm-4">
+    {% for FavoriteProduct in pagination %}
+      {% set Product = FavoriteProduct.Product %}
+      <div class="col">
+        <div class="card">
+          <a class="ec-favoriteRole__itemThumb" href="{{ url('product_detail', {'id': Product.id}) }}">
+            <img src="{{ asset(Product.main_list_image|no_image_product, 'save_image') }}" class="img-fluid">
+          </a>
+          <div class="card-body p-2 p-sm-3">
+            <p class="card-title fs-6">{{ Product.name }}</h5>
+            <p class="card-text text-end">
+              {% if Product.price02_inc_tax_min == Product.price02_inc_tax_max %}
+                {{ Product.price02_inc_tax_min|price }}
+              {% else %}
+                {{ Product.price02_inc_tax_min|price }}～{{ Product.price02_inc_tax_max|price }}
+              {% endif %}
+            </p>
+          </div>
+          <div class="card-footer text-end">
+            <a class="btn btn-sm btn-outline-secondary mb-2 mb-sm-0"
+               href="{{ url('mypage_favorite_delete', { id : Product.id }) }}" {{ csrf_token_for_anchor() }}
+               data-method="delete">
+               お気に入り削除
+            </a>
+            <a href="{{ url('product_detail', {'id': Product.id}) }}" class="btn btn-sm btn-outline-secondary">商品を見る</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="ec-pagerRole">
+    {% include "pager.twig" with {'pages': pagination.paginationData} %}
+  </div>
+
+  {% else %}
+    <div class="text-center py-3 fs-4">
+      <p>
+        {{ 'お気に入りは登録されていません。'|trans }}
+      </p>
+    </div>
+  {% endif %}
+
+{% endblock %}

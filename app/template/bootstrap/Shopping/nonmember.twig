@@ -1,0 +1,152 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set body_class = 'cart_page' %}
+
+{% form_theme form 'Form/form_div_layout.twig' %}
+
+{% block javascript %}
+<script src="//yubinbango.github.io/yubinbango/yubinbango.js" charset="UTF-8"></script>
+{% endblock javascript %}
+
+{% block main %}
+
+<div class="row border-bottom py-2 mb-2">
+  <div class="col">
+    <h1 class="h3">{{ 'お客様情報の入力'|trans }}</h1>
+  </div>
+</div>
+
+
+<div class="row text-center justify-content-center text-secondary d-none d-sm-flex">
+  <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+    <i class="bi bi-check-square me-1"></i>{{ 'カートの商品'|trans }}
+  </div>
+  {% if is_granted('ROLE_USER') == false %}
+  <div class="col-auto bg-light shadow-sm px-4 py-2 rounded-pill mx-2 fw-bold">
+    <i class="bi bi-check-square me-1"></i>{{ 'お客様情報'|trans }}
+  </div>
+  {% endif %}
+  <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+    <i class="bi bi-square me-1"></i>{{ 'ご注文手続き'|trans }}
+  </div>
+  <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+    <i class="bi bi-square me-1"></i>{{ 'ご注文内容確認'|trans }}
+  </div>
+  <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+    <i class="bi bi-square me-1"></i>{{ '完了'|trans }}
+  </div>
+</div>
+
+
+<div class="row max-width-660 mx-sm-auto my-3">
+<div class="col">
+<form method="post" action="{{ url('shopping_nonmember') }}" class="h-adr">
+{{ form_widget(form._token) }}
+
+<div class="mb-3">
+  {{ form_label(form.name, 'お名前', { 'label_attr': { 'class': 'form-label' }}) }}
+
+  <div class="{{ has_errors(form.name.name01, form.name.name02) ? ' error'}}">
+    <div class="input-group">
+      {{ form_widget(form.name.name01, { 'attr': { 'placeholder': '姓', 'class': 'form-control' }}) }}
+      {{ form_widget(form.name.name02, { 'attr': { 'placeholder': '名', 'class': 'form-control' }}) }}
+    </div>
+    {{ form_errors(form.name.name01) }}
+    {{ form_errors(form.name.name02) }}
+  </div>
+</div>
+
+
+    <div class="mb-3">
+      {{ form_label(form.kana, 'お名前(カナ)', { 'label_attr': { 'class': 'form-label' }}) }}
+
+      <div class="{{ has_errors(form.kana.kana01, form.kana.kana02) ? ' error'}}">
+        <div class="input-group">
+          {{ form_widget(form.kana.kana01, { 'attr': { 'placeholder': 'セイ', 'class': 'form-control' }}) }}
+          {{ form_widget(form.kana.kana02, { 'attr': { 'placeholder': 'メイ', 'class': 'form-control' }}) }}
+        </div>
+        {{ form_errors(form.kana.kana01) }}
+        {{ form_errors(form.kana.kana02) }}
+      </div>
+    </div>
+
+
+    <div class="mb-3">
+      {{ form_label(form.company_name, '会社名', { 'label_attr': { 'class': 'form-label' }}) }}
+      <div class="{{ has_errors(form.company_name) ? ' error' }}">
+        {{ form_widget(form.company_name, { 'attr': { 'class': 'form-control' }}) }}
+        {{ form_errors(form.company_name) }}
+      </div>
+    </div>
+
+
+    <div class="mb-3">
+    {{ form_label(form.address, '住所', { 'label_attr': { 'class': 'form-label' }}) }}
+      <div class="mb-2 {{ has_errors(form.postal_code) ? ' error' }}">
+        <div class="input-group">
+          <span class="input-group-text" id="inputZipcode">〒</span>
+          {{ form_widget(form.postal_code, { 'attr': { 'class': 'form-control' }}) }}
+          <span class="input-group-text"><a href="https://www.post.japanpost.jp/zipcode/" target="_blank" class="text-dark text-decoration-none">{{ '郵便番号検索'|trans }}</a></span>
+        </div>
+        {{ form_errors(form.postal_code) }}
+      </div>
+      <div class="mb-2 {{ has_errors(form.address.pref) ? ' error' }}">
+        {{ form_widget(form.address.pref, { 'attr': { 'class': 'form-select' }}) }}
+        {{ form_errors(form.address.pref) }}
+      </div>
+      <div class="mb-2 {{ has_errors(form.address.addr01) ? ' error' }}">
+          {{ form_widget(form.address.addr01, { 'attr': { 'placeholder': '市区町村名','class': 'form-control' }}) }}
+          {{ form_errors(form.address.addr01) }}
+      </div>
+      <div class="mb-2 {{ has_errors(form.address.addr02) ? ' error' }}">
+          {{ form_widget(form.address.addr02,  { 'attr': { 'placeholder': '番地・ビル名','class': 'form-control' }}) }}
+          {{ form_errors(form.address.addr02) }}
+      </div>
+    </div>
+
+
+    <div class="mb-3">
+      {{ form_label(form.phone_number, '電話番号', { 'label_attr': { 'class': 'form-label' }}) }}
+      <div class="{{ has_errors(form.phone_number) ? ' error' }}">
+          {{ form_widget(form.phone_number, { 'attr': { 'class': 'form-control' }}) }}
+          {{ form_errors(form.phone_number) }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      {{ form_label(form.email, 'メールアドレス', { 'label_attr': { 'class': 'form-label' }}) }}
+
+      <div class="mb-2 {{ has_errors(form.email.first) ? ' error' }}">
+          {{ form_widget(form.email.first, { 'attr': { 'placeholder': '例：tanaka_taro@example.com','class': 'form-control' }}) }}
+          {{ form_errors(form.email.first) }}
+      </div>
+      <div class="mb-2 {{ has_errors(form.email.second) ? ' error' }}">
+          {{ form_widget(form.email.second, { 'attr': { 'placeholder': '確認のためもう一度入力してください','class': 'form-control' }}) }}
+          {{ form_errors(form.email.second) }}
+      </div>
+    </div>
+
+    <div class="mb-3 text-center">
+      <button type="submit" class="btn btn-primary btn-lg mb-2">{{ '次へ'|trans }}</button>
+      <br>
+      <a class="btn btn-secondary" href="{{ url('cart') }}">{{ '戻る'|trans }}</a>
+    </div>
+
+
+</from>
+</div>
+</div>
+
+
+
+{% endblock %}

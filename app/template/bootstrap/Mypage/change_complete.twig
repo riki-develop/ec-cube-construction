@@ -1,0 +1,41 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set mypageno = 'change' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+<div class="row">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ 'マイページ'|trans }}/{{ '会員情報編集(完了)'|trans }}</h1>
+    {% include 'Mypage/navi.twig' %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col text-center">
+
+    <p class=" py-3 fs-4">
+      {{ '会員登録内容の変更が完了いたしました'|trans }}
+    </p>
+    <p class="" >
+      {{ 'それでは、引き続きショッピングをお楽しみください。'|trans }}
+    </p>
+
+    <a class="btn btn-primary btn-lg" href="{{ url('homepage') }}">{{ '戻る'|trans }}</a>
+
+  </div>
+</div>
+
+
+{% endblock %}

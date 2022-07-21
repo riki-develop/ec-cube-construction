@@ -1,0 +1,73 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% block main %}
+<div class="row max-width-660 mx-sm-auto">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ '当サイトについて'|trans }}</h1>
+
+    {% if BaseInfo.shop_name|default is not empty %}
+      <div class="border-bottom p-3">
+        <div class="fw-bold">{{ '店名'|trans }}</div>
+        <div>{{ BaseInfo.shop_name }}</div>
+      </div>
+    {% endif %}
+    {% if BaseInfo.company_name|default is not empty %}
+      <div class="border-bottom p-3">
+        <div class="fw-bold">{{ '会社名'|trans }}</div>
+        <div>{{ BaseInfo.company_name }}</div>
+      </div>
+    {% endif %}
+
+    {% if BaseInfo.postal_code|default is not empty %}
+      <div class="border-bottom p-3">
+        <div class="fw-bold">{{ '住所'|trans }}</div>
+        <div>
+          {{ '〒'|trans }}{{ BaseInfo.postal_code }}<br>
+          {{ BaseInfo.pref }}{{ BaseInfo.addr01 }}{{ BaseInfo.addr02 }}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if BaseInfo.phone_number|default is not empty %}
+      <div class="border-bottom p-3">
+        <div class="fw-bold">{{ '電話番号'|trans }}</div>
+        <div>{{ BaseInfo.phone_number }}</div>
+      </div>
+    {% endif %}
+
+    {% if BaseInfo.business_hour|default is not empty %}
+      <div class="border-bottom p-3">
+        <div class="fw-bold">{{ '店舗営業時間'|trans }}</div>
+        <div>{{ BaseInfo.business_hour }}</div>
+      </div>
+    {% endif %}
+
+    {% if BaseInfo.good_traded|default is not empty %}
+      <div class="border-bottom p-3">
+        <div class="fw-bold">{{ '取り扱い商品'|trans }}</div>
+        <div>{{ BaseInfo.good_traded|nl2br }}</div>
+      </div>
+    {% endif %}
+
+    {% if BaseInfo.message|default is not empty %}
+      <div class="border-bottom p-3">
+        <div class="fw-bold">{{ 'メッセージ'|trans }}</div>
+        <div>{{ BaseInfo.message|nl2br }}</div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+
+{% endblock %}

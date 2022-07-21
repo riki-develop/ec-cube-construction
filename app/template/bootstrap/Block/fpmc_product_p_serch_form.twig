@@ -1,0 +1,34 @@
+{% macro checked( n1, n2) %}{% apply spaceless %}
+{% if( n1 == n2 ) %}
+checked="checked"
+{% endif %}
+{% endapply %}{% endmacro %}
+
+{% macro createLabel( category , search_form , sf_index ) %}
+{% if category is defined
+    and search_form is defined
+    and sf_index is defined
+    and search_form.children[sf_index] is defined %}
+    <label><input type="checkbox" name="{{ sf_index }}" value="{{category.id}}" {{ _self.checked( category.id, search_form.children[sf_index].vars.value ) }} > {{category.name}}</label>
+{% endif %}
+{% endmacro %}
+
+{% set Categories = repository('Eccube\\Entity\\Category').getList() %}
+<div class="ec-sideArea">
+  <h4 class="ec-sideTitle">{{ '商品カテゴリ'|trans }}</h4>
+  <div class="ec-sideNav">
+    <div class="ec-sideNav__nav">
+      <form action="{{ url('product_search') }}" >
+        <div class="sideNavList">
+        {% for Category in Categories %}
+            {% if Category.children|length > 0 %}
+            {% set sf_index = 'c' ~ loop.index %}
+              {{ _self.createLabel( Category , search_form , sf_index ) }}
+            {% endif %}
+        {% endfor %}
+        </div>
+      <input type="submit" value="送信">
+      </form>
+    </div>
+  </div>
+</div>

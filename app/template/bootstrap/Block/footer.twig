@@ -1,0 +1,55 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% set Categories = repository('Eccube\\Entity\\Category').getList() %}
+
+<div class="row">
+  <div class="col-12 col-md-3 mb-3">
+    <div class="h1"><a class="link-dark text-decoration-none" href="{{ url('homepage') }}">{{ BaseInfo.shop_name }}</a></div>
+    <div>〒100-XXXX</div>
+    <div class="mb-2">東京都打味区手簀戸町00-12<br>
+    アンノウンマンション B32</div>
+    <div>TEL: 03-9X2E-7H21</div>
+    <div>MAIL: info[a]cajiya.co.jp</div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-md-2 mb-3">
+    <h5>ABOUT US</h5>
+    <ul class="list-unstyled text-small">
+      <li><a class="link-secondary" href="{{ url('help_about') }}">{{ '当サイトについて'|trans }}</a></li>
+      <li><a class="link-secondary" href="{{ url('help_privacy') }}">{{ 'プライバシーポリシー'|trans }}</a></li>
+      <li><a class="link-secondary" href="{{ url('help_tradelaw') }}">{{ '特定商取引法に基づく表記'|trans }}</a></li>
+      <li><a class="link-secondary" href="{{ url('contact') }}">{{ 'お問い合わせ'|trans }}</a></li>
+    </ul>
+  </div>
+
+  <div class="col-12 col-sm-6 col-md-2 mb-3">
+    <h5>CATEGORY</h5>
+    <ul class="list-unstyled text-small">
+      {% for Category in Categories %}
+      <li>
+        <a href="{{ url('product_list') }}?category_id={{ Category.id }}" class="link-secondary">
+          {{ Category.name }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="col-12 col-md-5 mb-3">
+    <h5>SUPPORT</h5>
+    <ul class="list-unstyled text-small">
+      <li class="mb-2">お支払い方法について<br>
+      <small>当店は、クレジットカード、銀行振込、代金引換 に対応しております。</small></li>
+      <li class="mb-2">お届けについて<br>
+      <small>ご注文商品は、ご注文から３営業日を目処に飛脚郵便、空路急便にて発送いたします。ご注文完了後のお届け日時の変更は、対応致しかねる場合がありますことご了承くださいませ。</small></li>
+    </ul>
+  </div>
+</div>

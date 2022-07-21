@@ -1,0 +1,72 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+
+<div class="mb-3">
+  <p class="h6">{{ '会員メニュー'|trans }}</p>
+  <ul class="list-group">
+
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('cart') }}">
+      {{ 'カートを見る'|trans }}
+      </a>
+    </li>
+
+{% if is_granted('ROLE_USER') %}
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('mypage') }}">
+        <span>{{ 'マイページ'|trans }}</span>
+      </a>
+    </li>
+
+    {% if BaseInfo.option_favorite_product %}
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('mypage_favorite') }}">
+        <span>{{ 'お気に入り'|trans }}</span>
+      </a>
+    </li>
+    {% endif %}
+
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('logout') }}">
+        <span>{{ 'ログアウト'|trans }}</span>
+      </a>
+    </li>
+
+{% else %}
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('entry') }}">
+        <span>{{ '新規会員登録'|trans }}</span>
+      </a>
+    </li>
+
+    {% if BaseInfo.option_favorite_product %}
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('mypage_favorite') }}">
+        <span>{{ 'お気に入り'|trans }}</span>
+      </a>
+    </li>
+    {% endif %}
+
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('mypage_login') }}">
+        <span>{{ 'ログイン'|trans }}</span>
+      </a>
+    </li>
+{% endif %}
+
+    <li class="list-group-item">
+      <a class="ec-headerLink__item" href="{{ url('homepage') }}">
+        <span>{{ 'ホームに戻る'|trans }}</span>
+      </a>
+    </li>
+
+  </ul>
+</div>

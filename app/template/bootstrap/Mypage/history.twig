@@ -1,0 +1,259 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set mypageno = 'index' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+<div class="row">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ 'マイページ'|trans }}/{{ 'ご注文履歴詳細'|trans }}</h1>
+    {% include 'Mypage/navi.twig' %}
+    {% set remessage = false %}
+
+    <div class="border-top border-bottom row py-2 lh-sm">
+      <div class="col-12 col-sm-2 mb-2 mb-sm-0">
+        <small>{{ '注文日時'|trans }}<br>
+        {{ Order.order_date|date_sec }}</small>
+      </div>
+      <div class="col-6 col-sm-1 mb-2 mb-sm-0">
+        <small>{{ 'ご注文番号'|trans }}</small><br>
+        {{ Order.order_no }}
+      </div>
+      {% if (BaseInfo.option_mypage_order_status_display) %}
+      <div class="col-6 col-sm-1 mb-2 mb-sm-0">
+        <small>{{ 'ご注文状況'|trans }}</small><br>
+        {{ Order.CustomerOrderStatus }}
+      </div>
+      {% endif %}
+      {% if BaseInfo.isOptionPoint %}
+      <div class="col-6 col-sm-2 mb-2 mb-sm-0">
+        <small>{{ 'ご利用ポイント'|trans }}</small><br>
+        {{ Order.usePoint|number_format }} pt
+      </div>
+      <div class="col-6 col-sm-2 mb-2 mb-sm-0">
+        <small>{{ '加算ポイント'|trans }}</small><br>
+        {{ Order.addPoint|number_format }} pt
+      </div>
+      {% endif %}
+
+    </div>
+    {# row #}
+
+    <div class="border-bottom row py-2 mb-2">
+      <div class="col-12 col-sm-4 lh-sm mb-3">
+        <div class="mb-2 mb-sm-3">
+          <small>{{ 'お支払い情報'|trans }}</small><br>
+          {{ 'お支払い方法'|trans }} : {{ Order.PaymentMethod }}
+        </div>
+        <div class="mb-2 mb-sm-3">
+          <small>{{ 'お問い合わせ'|trans }}</small><br>
+          <p>{{ Order.message|default('記載なし'|trans)|nl2br }}</p>
+        </div>
+
+        <div class="card">
+          <div class="card-body lh-sm">
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '小計'|trans }}</div>
+              <div class="ec-totalBox__specTotal">{{ Order.subtotal|price }}</div>
+            </div>
+
+            {% if Order.charge < 0 %}
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '手数料'|trans }}</div>
+              <div>{{ Order.charge|price }}</div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '送料'|trans }}</div>
+              <div>{{ Order.deliveryFeeTotal|price }}</div>
+            </div>
+
+            {% if Order.taxable_discount < 0 %}
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '値引き'|trans }}</div>
+              <div>{{ Order.taxable_discount|price }}</div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '合計'|trans }}</div>
+              <div class="text-end">
+                {#
+                <span>{{ Order.taxable_total|price }}</span>
+                <small>{{ '税込'|trans }}</small>
+                #}
+                {% for rate, total in Order.taxable_total_by_tax_rate %}
+                <div>
+                  <small class="text-secondary">{{ '%rate%％対象'|trans({ '%rate%': rate }) }}：</small>{{ total|price }}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            {% for item in Order.tax_free_discount_items %}
+              {% if loop.first %}<div class="ec-totalBox__total"></div>{% endif %}
+              <div class="d-flex justify-content-between border-bottom p-2">
+                <div>{{ item.product_name }}</div>
+                <div>{{ item.total_price|price }}</div>
+              </div>
+            {% endfor %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ 'お支払い合計'|trans }}</div>
+              <div>
+                <span class="fw-bold fs-5">{{ Order.payment_total|price }}</span>
+                <small>{{ '税込'|trans }}</small>
+              </div>
+            </div>
+
+            {% if BaseInfo.isOptionPoint and Order.Customer is not null %}
+              <div class="p-2 text-end text-secondary small">
+                <div>{{ 'ご利用ポイント'|trans }}：{{ Order.UsePoint|number_format }} pt</div>
+                <div>{{ '加算ポイント'|trans }}：{{ Order.AddPoint|number_format }} pt</div>
+              </div>
+            {% endif %}
+
+            <div class="p-2 text-end">
+              {% if stockOrder %}
+              <a href="{{ url('mypage_order', {'order_no': Order.order_no }) }}"
+               class="btn btn-sm btn-outline-secondary" {{ csrf_token_for_anchor() }} data-method="put"
+               data-confirm="false">{{ '再注文する'|trans }}</a>
+              {% endif %}
+
+            </div>
+
+
+          </div>
+        </div>
+
+
+
+
+
+
+
+      </div>
+      <div class="col-12 col-sm-8">
+        <small>{{ '配送情報'|trans }}</small><br>
+        {% for Shipping in Order.Shippings %}
+        {% set isShowReducedTaxMess = false %}
+
+        <div class="card position-relative p-3 mb-3">
+          <div class="mb-2 small">{{ 'お届け先'|trans }}{% if Order.multiple %}({{ loop.index }}){% endif %}</div>
+          <div class="mb-3">
+            <span class="h5">{{ Shipping.name01 }} {{ Shipping.name02 }}</span>
+             ( <span>{{ Shipping.kana01 }} {{ Shipping.kana02 }}</span>)様
+            <br>
+            {{ '〒'|trans }}{{ Shipping.postal_code }} {{ Shipping.Pref }}{{ Shipping.addr01 }}{{ Shipping.addr02 }}
+            <br>
+            <i class="bi bi-phone"></i> {{ Shipping.phone_number }}
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="small">配送方法</div>
+              {{ Shipping.shipping_delivery_name }}
+            </div>
+            <div class="col border-start">
+              <div class="small">お届け日</div>
+              {{ Shipping.shipping_delivery_date|date_day_with_weekday|default('指定なし'|trans) }}
+            </div>
+            <div class="col border-start">
+              <div class="small">お届け時間</div>
+              {{ Shipping.shipping_delivery_time|default('指定なし'|trans) }}
+            </div>
+          </div>
+
+          <div class="row">
+
+            {% for orderItem in Shipping.productOrderItems %}
+            <div class="col-12 col-sm-6">
+              <div class="d-flex border rounded-3">
+                <div class="col-4">
+                  {% if orderItem.product is null %}
+                    <img src="{{ asset(''|no_image_product, 'save_image') }}"/>
+                  {% else %}
+                    <img src="{{ asset(orderItem.Product.MainListImage|no_image_product, 'save_image') }}"
+                         alt="{{ orderItem.productName }}" class="card-img-top rounded-3"/>
+                  {% endif %}
+                </div>
+
+                <div class="col-8 p-2">
+                  <div>
+                    {{ orderItem.productName }} × {{ orderItem.quantity }} {% if is_reduced_tax_rate(orderItem) %}{{ '※'|trans }}{% set isShowReducedTaxMess = true %}{% endif %}
+                  </div>
+                  {% if orderItem.ProductClass is not null %}
+                    <div class="small lh-1 my-2">
+                      {% if orderItem.ProductClass.ClassCategory1 is not null %}
+                        {{ orderItem.productClass.classCategory1.className.name }}：{{ orderItem.productClass.classCategory1 }}
+                      {% endif %}
+                      {% if orderItem.ProductClass.ClassCategory2 %}
+                        <br>{{ orderItem.productClass.classCategory2.className.name }}：{{ orderItem.productClass.classCategory2 }}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  <div class="small lh-1">
+                    <span>{{ orderItem.price_inc_tax|price }} × {{ orderItem.quantity|number_format }}</span>　
+                    {# <span class="fw-bold">小計：￥3,080</span> #}
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <p class="m-0">{{ isShowReducedTaxMess ? '※ は軽減税率対象商品です。'|trans }}</p>
+          </div>
+          {% endfor %}
+
+        </div>
+        {% endfor %}
+
+      </div>
+    </div>
+    {# row #}
+
+    <div class="border-bottom row py-2 mb-2">
+      <small>{{ 'メール配信履歴一覧'|trans }}</small><br>
+      <div class="accordion">
+      {% for MailHistory in Order.MailHistories %}
+        <div class="accordion-item">
+          <div class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed p-3" type="button" data-bs-toggle="collapse" data-bs-target="#mail{{ MailHistory.id }}" aria-expanded="false">
+              <div class="text-start">
+                <small class="d-block d-sm-inline-block me-3">{{ MailHistory.send_date|date_sec }}</small>
+                {{ MailHistory.mail_subject }}
+              </div>
+            </button>
+          </div>
+          <div id="mail{{ MailHistory.id }}" class="accordion-collapse collapse" aria-labelledby="headingOne" >
+            <div class="accordion-body small">
+              {{ MailHistory.mail_body|nl2br }}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p class="">{{ 'メール履歴はありません。'|trans }}</p>
+      {% endfor %}
+      </div>
+    </div>
+
+    <div class="text-start">
+      <a href="{{ url('mypage') }}" class="btn btn-outline-secondary">{{ '戻る'|trans }}</a>
+    </div>
+
+  </div>
+</div>
+
+
+{% endblock %}

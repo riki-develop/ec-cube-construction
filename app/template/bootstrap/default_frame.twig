@@ -1,0 +1,203 @@
+<!doctype html>
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+<html lang="{{ eccube_config.locale }}">
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# product: http://ogp.me/ns/product#">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="eccube-csrf-token" content="{{ csrf_token(constant('Eccube\\Common\\Constant::TOKEN_NAME')) }}">
+    <title>{{ BaseInfo.shop_name }}{% if subtitle is defined and subtitle is not empty %} / {{ subtitle }}{% elseif title is defined and title is not empty %} / {{ title }}{% endif %}</title>
+    {% if Page.author is not empty %}
+        <meta name="author" content="{{ Page.author }}">
+    {% endif %}
+    {% if Page.description is not empty %}
+        <meta name="description" content="{{ Page.description }}">
+    {% endif %}
+    {% if Page.keyword is not empty %}
+        <meta name="keywords" content="{{ Page.keyword }}">
+    {% endif %}
+    {% if Page.meta_robots is not empty %}
+        <meta name="robots" content="{{ Page.meta_robots }}">
+    {% endif %}
+    {% if Page.meta_tags is not empty %}
+        {{ include(template_from_string(Page.meta_tags)) }}
+    {% endif %}
+    <link rel="icon" href="{{ asset('assets/img/common/favicon.ico', 'user_data') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    {# <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/> #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css" integrity="sha512-wR4oNhLBHf7smjy0K4oqzdWumd+r5/+6QO/vDda76MW5iug4PT7v86FoEkySIJft3XA0Ae6axhIvHrqwm793Nw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css" integrity="sha512-6lLUdeQ5uheMFbWm3CP271l14RsX1xtx+J5x2yeIDkkiBpeVTNhTqijME7GgRKKi6hCqovwCoBTlRBEC20M8Mg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {# <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}"> #}
+    <style media="screen">
+      .max-width-660{
+        max-width: 660px !important;
+      }
+    </style>
+    {% block stylesheet %}{% endblock %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        $(function() {
+            $.ajaxSetup({
+                'headers': {
+                    'ECCUBE-CSRF-TOKEN': $('meta[name="eccube-csrf-token"]').attr('content')
+                }
+            });
+        });
+    </script>
+    {# Layout: HEAD #}
+    {% if Layout.Head %}
+        {{ include('block.twig', {'Blocks': Layout.Head}) }}
+    {% endif %}
+    {# プラグイン用styleseetやmetatagなど #}
+    {% if plugin_assets is defined %}{{ include('@admin/snippet.twig', { snippets: plugin_assets }) }}{% endif %}
+    <link rel="stylesheet" href="{{ asset('assets/css/customize.css', 'user_data') }}">
+</head>
+<body id="page_{{ app.request.get('_route') }}" class="{{ body_class|default('other_page') }}">
+{# Layout: BODY_AFTER #}
+{% if Layout.BodyAfter %}
+    {{ include('block.twig', {'Blocks': Layout.BodyAfter}) }}
+{% endif %}
+
+
+{# Layout: HEADER #}
+{% if Layout.Header %}
+  <header class="bg-light shadow-sm position-relative" style="z-index:1000;">
+    <!-- Button trigger modal -->
+    <div class="position-fixed top-0 start-0 d-block d-lg-none">
+      <button type="button" class="btn bg-dark text-white fs-4 p-2 m-1" data-bs-toggle="modal" data-bs-target="#drawer">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+
+      {{ include('block.twig', {'Blocks': Layout.Header}) }}
+  </header>
+{% endif %}
+
+{# Layout: CONTENTS_TOP #}
+{% if Layout.ContentsTop %}
+  <div class="container">
+    {{ include('block.twig', {'Blocks': Layout.ContentsTop}) }}
+  </div>
+{% endif %}
+
+<div class="container-xl mb-5">
+  <div class="row">
+
+    {% set mainClass = 'col-12' %}
+    {% set leftClass = 'col' %}
+    {% set rightClas = 'col' %}
+    {% if Layout.ColumnNum == 2 %}
+      {% set mainClass = 'col-9' %}
+      {% set leftClass = 'col-3' %}
+      {% set rightClas = 'col-3' %}
+    {% elseif Layout.ColumnNum == 3 %}
+      {% set mainClass = 'col-8' %}
+      {% set leftClass = 'col-2' %}
+      {% set rightClas = 'col-2' %}
+    {% endif %}
+
+
+    {# Layout: SIDE_LEFT #}
+    {% if Layout.SideLeft %}
+    <div class="{{ leftClass }}">
+        {{ include('block.twig', {'Blocks': Layout.SideLeft}) }}
+    </div>
+    {% endif %}
+
+    <div class="{{ mainClass }}">
+      {# Layout: MAIN_TOP #}
+      {% if Layout.MainTop %}
+        {{ include('block.twig', {'Blocks': Layout.MainTop}) }}
+      {% endif %}
+
+      {# MAIN AREA #}
+      {% block main %}{% endblock %}
+
+      {# Layout: MAIN_Bottom #}
+      {% if Layout.MainBottom %}
+        {{ include('block.twig', {'Blocks': Layout.MainBottom}) }}
+      {% endif %}
+    </div>
+
+    {# Layout: SIDE_RIGHT #}
+    {% if Layout.SideRight %}
+      <div class="{{ rightClas }}">
+          {{ include('block.twig', {'Blocks': Layout.SideRight}) }}
+      </div>
+    {% endif %}
+
+    </div>
+</div>
+
+{# Layout: CONTENTS_BOTTOM #}
+{% if Layout.ContentsBottom %}
+<div class="container">
+    {{ include('block.twig', {'Blocks': Layout.ContentsBottom}) }}
+</div>
+{% endif %}
+
+
+{# Layout: CONTENTS_FOOTER #}
+{% if Layout.Footer %}
+<div class="bg-light small">
+  <div class="container-xl py-5">
+    {{ include('block.twig', {'Blocks': Layout.Footer}) }}
+  </div>
+</div>
+<div class="bg-dark">
+  <div class="container-xl py-2 text-center">
+    <small class="text-secondary">copyright (c) {{ BaseInfo.shop_name }} all rights reserved.</small>
+  </div>
+</div>
+{% endif %}
+
+
+<div class="modal fade" id="drawer" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog ms-0 me-auto my-0">
+    <div class="modal-content">
+      <div class="modal-body">
+
+        {# Layout: DRAWER #}
+        {% if Layout.Drawer %}
+            {{ include('block.twig', {'Blocks': Layout.Drawer}) }}
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="modal-footer bg-dark justify-content-center">
+      <button type="button" class="btn btn-dark" data-bs-dismiss="modal">✕ CLOSE</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+{# <script src="https://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script> #}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js" integrity="sha512-XtmMtDEcNz2j7ekrtHvOVR4iwwaD6o/FUJe6+Zq+HgcCsk3kj4uSQQR8weQ2QVj1o0Pk6PwYLohm206ZzNfubg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+{% include('@common/lang.twig') %}
+<script src="{{ asset('assets/js/function.js') }}"></script>
+<script src="{{ asset('assets/js/eccube.js') }}"></script>
+{% block javascript %}{% endblock %}
+{# Layout: CLOSE_BODY_BEFORE #}
+{% if Layout.CloseBodyBefore %}
+    {{ include('block.twig', {'Blocks': Layout.CloseBodyBefore}) }}
+{% endif %}
+{# プラグイン用Snippet #}
+{% if plugin_snippets is defined %}
+    {{ include('snippet.twig', { snippets: plugin_snippets }) }}
+{% endif %}
+    <script src="{{ asset('assets/js/customize.js', 'user_data') }}"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% form_theme form 'Form/form_div_layout.twig' %}
+
+{% block main %}
+  <div class="row max-width-660 mx-sm-auto">
+    <div class="col">
+      <h1 class="h4 py-2 my-2 border-bottom">{{ 'パスワードの再発行'|trans }}</h1>
+
+      <div class="p-3 p-sm-5 bg-light">
+        <form name="form1" id="form1" method="post" action="{{ url('forgot') }}">
+        {{ form_widget(form._token) }}
+        <p class="ec-para-normal">{{ 'ご登録時のメールアドレスを入力して「次へ」ボタンをクリックしてください。'|trans }}</p>
+        <p class="ec-para-normal">{{ '※パスワード再発行メールを送信します。メールの内容をご確認の上、新しいパスワードを登録してください。'|trans }}</p>
+
+        <div class="mb-3">
+          {{ form_label(form.login_email, 'メールアドレス', { 'label_attr': { 'class': 'form-label' }}) }}
+            <div class="{{ has_errors(form.login_email) ? ' error' }}">
+              {{ form_widget(form.login_email, { 'attr': {'class' : 'form-control', 'placeholder' : 'メールアドレス', 'autofocus': true}}) }}
+              {{ form_errors(form.login_email) }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">{{ '次へ'|trans }}</button>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

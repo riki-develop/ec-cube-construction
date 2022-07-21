@@ -1,0 +1,53 @@
+{% set Categories = repository('Eccube\\Entity\\Category').getList() %}
+{# {% if search_form is defined and search_form.vars|length > 0 %}
+{% endif %} #}
+
+<div class="ec-sideArea">
+  <h4 class="ec-sideTitle">{{ '商品カテゴリ'|trans }}</h4>
+  <div class="ec-sideNav">
+    <div class="ec-sideNav__nav">
+
+      <form action="{{ url('product_search') }}" >
+      {% for Category in Categories %}
+          {% if Category.children|length > 0 %}
+          {% set cIdx = loop.index %}
+          {% set cN = 'c' ~ cIdx %}
+          <div class="sideNavList">
+            <p>{{ Category.name }}</p>
+            <div class="js-exclusive-checkbox">
+            {% for ChildCategory in Category.children %}
+              {% if search_form is defined and search_form.children[cN] is defined %}
+                {% set scvvn = search_form.children[cN].vars.value|number_format(0,'') %}
+              {% else %}
+                {% set scvvn = 0 %}
+              {% endif %}
+
+              {% set Cin = ChildCategory.id|number_format(0,'') %}
+              {% if scvvn is same as( Cin ) %}
+                {% set checked = 'checked="checked"' %}
+              {% else %}
+                {% set checked = '' %}
+              {% endif %}
+              <label><input type="checkbox" name="{{ cN }}" value="{{ChildCategory.id}}" {{checked}} > {{ChildCategory.name}}</label>
+            {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+      {% endfor %}
+      <input type="submit" value="送信">
+      </form>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+jQuery((function($){
+  $('.js-exclusive-checkbox input').on('click', function(e) {
+    var that = this;
+    $('[name^='+$(that).attr('name')+']').each(function(i){
+      if( this.value !== that.value ){
+        $(this).prop("checked",false);
+      }
+    });
+  })
+})(jQuery));
+</script>

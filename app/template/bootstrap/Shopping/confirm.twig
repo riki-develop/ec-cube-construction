@@ -1,0 +1,279 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% form_theme form 'Form/form_div_layout.twig' %}
+
+{% block main %}
+  <div class="row">
+    <div class="col">
+      <h1 class="h4 py-2 my-2 border-bottom">{{ 'ご注文内容のご確認'|trans }}</h1>
+    </div>
+  </div>
+
+  <div class="row text-center justify-content-center text-secondary d-none d-sm-flex">
+    <div class="col-auto bg-light shadow-sm px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-check-square me-1"></i>{{ 'カートの商品'|trans }}
+    </div>
+    {% if is_granted('ROLE_USER') == false %}
+    <div class="col-auto bg-light shadow-sm px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-check-square me-1"></i>{{ 'お客様情報'|trans }}
+    </div>
+    {% endif %}
+    <div class="col-auto bg-light shadow-sm px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-check-square me-1"></i>{{ 'ご注文手続き'|trans }}
+    </div>
+    <div class="col-auto bg-light shadow-sm px-4 py-2 rounded-pill mx-2 fw-bold">
+      <i class="bi bi-check-square me-1"></i>{{ 'ご注文内容確認'|trans }}
+    </div>
+    <div class="col-auto bg-light px-4 py-2 rounded-pill mx-2">
+      <i class="bi bi-square me-1"></i>{{ '完了'|trans }}
+    </div>
+  </div>
+
+  <form id="shopping-form" method="post" action="{{ url('shopping_checkout') }}">
+  {{ form_widget(form._token) }}
+
+    <div class="row mt-4">
+      <div class="col-12 col-sm-8">
+
+        <div class="border-bottom mb-3">
+        <div class="row pb-3">
+          <div class="col-12 col-sm-auto">
+            {{ 'お客様情報'|trans }}
+          </div>
+
+          <div class="col position-relative js-non-customer-display">
+            <p>
+              <span class="customer-name01 h5">{{ Order.name01 }}</span> <span class="customer-name02 h5">{{ Order.name02 }}</span>
+              （ <span class="customer-kana01">{{ Order.kana01 }}</span> <span class="customer-kana02">{{ Order.kana02 }}</span> ）
+              {{ ' 様'|trans }}
+            <br>
+              〒<span class="customer-postal_code">{{ Order.postal_code }}</span>　
+              <span class="customer-pref">{{ Order.pref }}</span>　<span class="customer-addr01">{{ Order.addr01 }}</span>　<span class="customer-addr02">{{ Order.addr02 }}</span>
+            <br>
+            <i class="bi bi-phone"></i> <span class="customer-phone_number">{{ Order.phone_number }}</span> ／
+            <i class="bi bi-envelope"></i> <span class="customer-email">{{ Order.email }}</span> ／
+            <i class="bi bi-building"></i> <span class="customer-company_name">{{ Order.companyName }}</span>
+          </p>
+
+        </div>
+
+      </div>
+      </div>
+      {# row #}
+
+
+      <div class="border-bottom mb-3">
+      <div class="row pb-3">
+        <div class="col-12 col-sm-auto">
+          {{ 'お支払方法'|trans }}
+        </div>
+        <div class="col">
+          {% set charge = 0 %}
+          {% for item in Order.order_items if item.isCharge %}
+              {% set charge = item.total_price %}
+          {% endfor %}
+          {{ Order.Payment }}({{ charge|price }})
+        </div>
+      </div>
+      </div>
+      {# row #}
+
+
+      {% if BaseInfo.isOptionPoint and Order.Customer is not null %}
+      <div class="border-bottom mb-3">
+      <div class="row pb-3">
+        <div class="col-12 col-sm-auto">
+          {{ '利用ポイント'|trans }}
+        </div>
+        <div class="col">
+          {{ Order.use_point|number_format }} pt
+        </div>
+      </div>
+      </div>
+      {# row #}
+      {% endif %}
+
+
+      <div class="border-bottom mb-3">
+        <div class="row pb-3">
+          <div class="col-12 col-sm-auto">
+            {{ '配送情報　'|trans }}
+          </div>
+          <div class="col">
+          {% for shipping in Order.shippings %}
+            {% set idx = loop.index0 %}
+            {% set isShowReducedTaxMess = false %}
+            <div class="card p-3 mb-3">
+
+              <div class="mb-2 small">{{ 'お届け先'|trans }}{% if Order.multiple %}({{ loop.index }}){% endif %}</div>
+
+              <div class="mb-3">
+                <span class="h5">{{ shipping.name01 }} {{ shipping.name02 }}</span>
+                 ( <span>{{ shipping.kana01 }} {{ shipping.kana02 }} </span>)
+                 {{ ' 様'|trans }}
+                <br>
+              {{ '〒'|trans }}{{ shipping.postal_code }} {{ shipping.pref }}{{ shipping.addr01 }}{{ shipping.addr02 }}
+                <br>
+              <i class="bi bi-phone"></i> {{ shipping.phone_number }}
+              </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <div class="small">{{ '配送方法'|trans }}</div>
+                {% set delivery_fee = 0 %}
+                {% for item in shipping.order_items if item.isDeliveryFee %}
+                    {% set delivery_fee = item.total_price %}
+                {% endfor %}
+                {{ Order.Shippings[idx].Delivery }}({{ delivery_fee|price }})
+              </div>
+              <div class="col border-start">
+                <div class="small">{{ 'お届け日'|trans }}</div>
+                {{ Order.Shippings[idx].shipping_delivery_date? Order.Shippings[idx].shipping_delivery_date|date_day_with_weekday : '指定なし'|trans }}
+              </div>
+              <div class="col border-start">
+                <div class="small">{{ 'お届け時間'|trans }}</div>
+                {{ Order.Shippings[idx].shipping_delivery_time?: '指定なし'|trans }}
+              </div>
+            </div>
+
+            <div class="row">
+              {% for orderItem in shipping.productOrderItems %}
+              <div class="col-12 col-sm-6 mb-2">
+                <div class="d-flex border rounded-3">
+                  <div class="col-4">
+                    <img src="{{ asset((orderItem.product is null ? null : orderItem.product.MainListImage)|no_image_product, 'save_image') }}" alt="{{ orderItem.productName }}" class="card-img-top rounded-3">
+                  </div>
+                  <div class="col-8 p-2">
+                    <div>{{ orderItem.productName }}{% if is_reduced_tax_rate(orderItem) %}{{ '※'|trans }}{% set isShowReducedTaxMess = true %}{% endif %}</div>
+                    <div class="small lh-1 my-2">{% if orderItem.productClass is not null and orderItem.productClass.classCategory1 %}
+                      {{ orderItem.productClass.classCategory1.className.name }}：{{ orderItem.productClass.classCategory1 }}<br>
+                    {% endif %}
+                    {% if orderItem.productClass is not null and orderItem.productClass.classCategory2 %}
+                      {{ orderItem.productClass.classCategory2.className.name }}：{{ orderItem.productClass.classCategory2 }}<br>
+                    {% endif %}</div>
+                    <div class="small lh-1">
+                      <span>{{ orderItem.priceIncTax|price }} × {{ orderItem.quantity|number_format }}</span>　
+                      <span class="fw-bold">{{ '小計：'|trans }}{{ orderItem.totalPrice|price }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+              <p class="m-0">{{ isShowReducedTaxMess ? '※ は軽減税率対象商品です。'|trans }}</p>
+            </div>
+
+
+            </div>
+            {# card #}
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+      {# row #}
+
+      <div class="border-bottom mb-3">
+      <div class="row pb-3">
+        <div class="col-12 col-sm-auto">
+          {{ '問い合わせ'|trans }}
+        </div>
+        <div class="col">
+          {{ Order.message|nl2br }}
+        </div>
+      </div>
+      </div>
+      {# row #}
+
+
+      </div>
+      {# col-8 #}
+      <div class="col-12 col-sm-4">
+        <div class="card sticky-top">
+          <div class="card-body lh-sm">
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '小計'|trans }}</div>
+              <div class="ec-totalBox__specTotal">{{ Order.subtotal|price }}</div>
+            </div>
+
+            {% if Order.charge < 0 %}
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '手数料'|trans }}</div>
+              <div>{{ Order.charge|price }}</div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '送料'|trans }}</div>
+              <div>{{ Order.deliveryFeeTotal|price }}</div>
+            </div>
+
+            {% if Order.taxable_discount < 0 %}
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '値引き'|trans }}</div>
+              <div>{{ Order.taxable_discount|price }}</div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ '合計'|trans }}</div>
+              <div class="text-end">
+                {#
+                <span>{{ Order.taxable_total|price }}</span>
+                <small>{{ '税込'|trans }}</small>
+                #}
+                {% for rate, total in Order.taxable_total_by_tax_rate %}
+                <div>
+                  <small class="text-secondary">{{ '%rate%％対象'|trans({ '%rate%': rate }) }}：</small>{{ total|price }}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            {% for item in Order.tax_free_discount_items %}
+              {% if loop.first %}<div class="ec-totalBox__total"></div>{% endif %}
+              <div class="d-flex justify-content-between border-bottom p-2">
+                <div>{{ item.product_name }}</div>
+                <div>{{ item.total_price|price }}</div>
+              </div>
+            {% endfor %}
+
+            <div class="d-flex justify-content-between border-bottom p-2">
+              <div>{{ 'お支払い合計'|trans }}</div>
+              <div>
+                <span class="fw-bold fs-5">{{ Order.payment_total|price }}</span>
+                <small>{{ '税込'|trans }}</small>
+              </div>
+            </div>
+
+            {% if BaseInfo.isOptionPoint and Order.Customer is not null %}
+              <div class="p-2 text-end text-secondary small">
+                <div>{{ 'ご利用ポイント'|trans }}：{{ Order.UsePoint|number_format }} pt</div>
+                <div>{{ '加算ポイント'|trans }}：{{ Order.AddPoint|number_format }} pt</div>
+              </div>
+            {% endif %}
+
+            <div class="p-2 text-end">
+              <a href="{{ url('shopping') }}" class="btn btn-sm btn-outline-secondary">{{ 'ご注文手続きに戻る'|trans }}</a>
+              <button type="submit" class="btn btn-primary px-4">{{ '注文する'|trans }}</button>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </form>
+
+{% endblock %}

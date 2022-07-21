@@ -1,0 +1,25 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% set Carts = get_all_carts() %}
+{% set totalPrice = get_carts_total_price() %}
+{% set totalQuantity = get_carts_total_quantity() %}
+
+{# <div class="row"> #}
+
+  <div class="ms-2">
+    <a href="{{ url('cart') }}" class="text-dark text-decoration-none bg-warning p-2 rounded">
+      <i class="bi bi-cart"></i>
+      <span>{{ totalQuantity|number_format }}</span>
+      <span class="d-none d-sm-inline">{{ totalPrice|price }}</span>
+    </a>
+  </div>
+
+{# </div> #}

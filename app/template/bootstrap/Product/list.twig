@@ -1,0 +1,144 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% set body_class = 'product_page' %}
+
+{% block javascript %}
+  <script>
+    eccube.productsClassCategories = {
+      {% for Product in pagination %}
+        "{{ Product.id|escape('js') }}": {{ class_categories_as_json(Product)|raw }}{% if loop.last == false %},{% endif %}
+      {% endfor %}
+    };
+
+    $(function() {
+
+      // 表示件数を変更
+      $('.disp-number').change(function() {
+        var dispNumber = $(this).val();
+        $('#disp_number').val(dispNumber);
+        $('#pageno').val(1);
+        $("#form1").submit();
+      });
+
+      // 並び順を変更
+      $('.order-by').change(function() {
+        var orderBy = $(this).val();
+        $('#orderby').val(orderBy);
+        $('#pageno').val(1);
+        $("#form1").submit();
+      });
+
+    });
+
+  </script>
+{% endblock %}
+
+{% block main %}
+  {% if search_form.category_id.vars.errors | length > 0 %}
+    <div class="ec-searchnavRole">
+      <p class="errormsg text-danger">{{ 'ご指定のカテゴリは存在しません'|trans }}</p>
+    </div>
+  {% else %}
+    <form name="form1" id="form1" method="get" action="?">
+      {% for item in search_form %}
+        <input type="hidden" id="{{ item.vars.id }}" name="{{ item.vars.full_name }}" {% if item.vars.value is not empty %} value="{{ item.vars.value }}" {% endif %}/>
+      {% endfor %}
+    </form>
+
+    <div class="row">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb py-2 border-bottom small mt-1">
+          <li class="breadcrumb-item">
+            <a href="{{ url('product_list') }}">{{ '全て'|trans }}</a>
+          </li>
+
+          {% if Category is not null %}
+            {% for Path in Category.path %}
+              {% if loop.last %}
+                <li class="breadcrumb-item active" aria-current="page">{{ Path.name }}</li>
+              {% else %}
+                <li class="breadcrumb-item">
+                  <a href="{{ url('product_list') }}?category_id={{ Path.id }}">{{ Path.name }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% if search_form.vars.value and search_form.vars.value.name %}
+            <li class="breadcrumb-item active">{{ '「%name%」の検索結果'|trans({ '%name%': search_form.vars.value.name }) }}</li>
+          {% endif %}
+
+        </ol>
+      </nav>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-9">
+        {% if pagination.totalItemCount > 0 %}
+          {{ '%count%件の商品が見つかりました'|trans({ '%count%': pagination.totalItemCount })|raw }}
+        {% else %}
+          <span>{{ 'お探しの商品は見つかりませんでした'|trans }}</span>
+        {% endif %}
+      </div>
+      <div class="col-3">
+        {% if pagination.totalItemCount > 0 %}
+          <div class="d-none d-sm-flex">
+            {{ form_widget(disp_number_form, {'id': '', 'attr': {'class': 'form-select me-2 disp-number'}}) }}
+            {{ form_widget(order_by_form, {'id': '', 'attr': {'class': 'form-select order-by'}}) }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if pagination.totalItemCount > 0 %}
+      <div class="row mb-5 row-cols-2 row-cols-md-4 g-2 g-sm-4">
+        {% for Product in pagination %}
+          <div class="col">
+            <div class="card">
+              <a href="{{ url('product_detail', {'id': Product.id}) }}">
+                <img src="{{ asset(Product.main_list_image|no_image_product, 'save_image') }}" class="img-fluid">
+              </a>
+              <div class="card-body p-2 p-sm-3">
+                <p class="card-title fs-6">{{ Product.name }}</p>
+                <p class="card-text text-end">
+                  {% if Product.hasProductClass %}
+                    {% if Product.getPrice02Min == Product.getPrice02Max %}
+                      {{ Product.getPrice02IncTaxMin|price }}
+                    {% else %}
+                      {{ Product.getPrice02IncTaxMin|price }}
+                      ～
+                      {{ Product.getPrice02IncTaxMax|price }}
+                    {% endif %}
+                  {% else %}
+                    {{ Product.getPrice02IncTaxMin|price }}
+                  {% endif %}
+                </p>
+                {% if Product.stock_find is empty %}
+                  <p class="">{{ 'ただいま品切れ中です。'|trans }}</p>
+                {% endif %}
+              </div>
+              <div class="card-footer text-end d-none d-sm-block">
+                <a href="{{ url('product_detail', {'id': Product.id}) }}" class="btn btn-sm btn-outline-secondary">商品を見る</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="ec-pagerRole">
+        {% include "pager.twig" with {
+          'pages' : pagination.paginationData
+        } %}
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock %}

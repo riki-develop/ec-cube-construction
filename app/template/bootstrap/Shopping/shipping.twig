@@ -1,0 +1,60 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% block main %}
+  <div class="row max-width-660 m-sm-auto">
+    <div class="col">
+      <h1 class="h4 py-2 my-2 border-bottom">{{ 'お届け先の指定'|trans }}</h1>
+
+      {% if Customer.CustomerAddresses|length < eccube_config.eccube_deliv_addr_max %}
+          <div class="text-end my-3">
+            <a class="btn btn-outline-secondary" href="{{ url('shopping_shipping_edit', {'id': shippingId}) }}">{{ '新規お届け先を追加する'|trans }}</a>
+          </div>
+      {% else %}
+          <div class="alert alert-danger my-3" role="alert">
+            <i class="bi bi-exclamation-circle"></i> {{ 'お届け先登録の上限の%count%件に達しています。お届け先を入力したい場合は、削除か変更を行ってください。'|trans({ '%count%': eccube_config.eccube_deliv_addr_max }) }}
+          </div>
+      {% endif %}
+      {% if has_errors(form.addresses) %}
+          <div class="alert alert-danger my-3" role="alert">
+            <i class="bi bi-exclamation-circle"></i> {{ 'お届け先を指定してください'|trans }}
+          </div>
+      {% endif %}
+
+      <form method="post" action="{{ url('shopping_shipping', {'id': shippingId}) }}">
+      {{ form_widget(form._token) }}
+
+      {% for choice in form.addresses.vars.choices %}
+      {% set Address = choice.data %}
+        <label class="border d-flex py-3 rounded-3 mb-2 small lh-sm">
+          <div class="col-2 d-flex justify-content-center align-items-center">
+            {% set checked = choice is selectedchoice(form.addresses.vars.value) ? 'checked="checked"' : '' %}
+            <input type="radio" id="address{{ choice.value }}" name="{{ form.addresses.vars.full_name }}" value="{{ choice.value }}" {{ checked }} class="form-check-input" />
+          </div>
+          <div class="col d-flex align-items-center">
+            <div><span class="h5">{{ Address.name01 }}&nbsp;{{ Address.name02 }}</span><br>
+            〒{{ Address.postal_code }} {{ Address.Pref }}{{ Address.addr01 }}{{ Address.addr02 }}<br>
+            {{ Address.phone_number }}</div>
+          </div>
+        </label>
+      {% endfor %}
+
+        <div class="mb-3 text-end">
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url('shopping') }}">{{ '戻る'|trans }}</a>
+          <button type="submit" class="btn btn-primary">{{ '選択したお届け先に送る'|trans }}</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+{% endblock %}

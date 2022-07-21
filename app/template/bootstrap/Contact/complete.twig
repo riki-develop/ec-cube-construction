@@ -1,0 +1,26 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends 'default_frame.twig' %}
+
+{% block main %}
+<div class="row">
+  <div class="col">
+    <h1 class="h4 py-2 my-2 border-bottom">{{ 'お問い合わせ(完了)'|trans }}</h1>
+
+    <h2>{{ 'お問い合わせ内容の送信が完了いたしました'|trans }}</h2>
+    <p>{{ '万一、ご確認メールが届かない場合は、トラブルの可能性もありますので大変お手数ではございますがもう一度お問い合わせいただくか、お電話にてお問い合わせくださいませ。'|trans|nl2br }}</p>
+    <p class="text-center"><a class="btn btn-secondary" href="{{ url('homepage') }}">{{ 'トップページへ'|trans }}</a></p>
+
+
+  </div>
+</div>
+
+{% endblock %}
